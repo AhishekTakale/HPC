@@ -1,0 +1,163 @@
+
+
+//merge
+
+
+
+#include <iostream>
+#include<omp.h>
+using namespace std;
+
+void merge(int a[], int lb, int mid, int ub);
+void mergesort(int a[], int lb, int ub);
+
+void mergesort(int a[], int lb, int ub)
+{
+	int mid;
+	if(lb<ub)
+	{
+		mid=(lb+ub)/2;
+
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				mergesort(a, lb, mid);
+			}
+			#pragma omp section
+			{
+				mergesort(a, mid+1, ub);
+			}
+		}
+
+		merge(a, lb, mid, ub);
+	}
+}
+
+void merge(int a[], int lb, int mid, int ub)
+{
+	int i, j, k;
+	int b[ub+1];
+
+	i=lb;
+	j=mid+1;
+	k=lb;
+
+	while(i<=mid && j<=ub)
+	{
+		if(a[i]<=a[j])
+		{
+			b[k++]=a[i++];
+		}
+
+		else{
+			b[k++]=a[j++];
+		}
+	}
+
+
+	for(;i<=mid;i++)
+	{
+		b[k++]=a[i];
+	}
+
+	for(;j<=ub;j++)
+	{
+		b[k++]=a[j];
+	}
+
+	for(i=lb;i<=ub;i++)
+	{
+		a[i]=b[i];
+	}
+
+}
+
+
+
+int main()
+{
+	int n;
+	cout<<"Enter the length of array :";
+	cin>>n;
+
+	int a[n];
+	cout<<"Enter the elements of array :";
+
+	for(int i=0;i<n;i++)
+	{
+		cin>>a[i];
+	}
+
+	mergesort(a, 0, n-1);
+
+	cout<<"Sorted array is :";
+	for(int i=0;i<n;i++)
+	{
+		cout<<a[i]<<" ";
+	}
+
+	return 0;
+}
+
+
+
+
+//###################################################################################
+
+
+bubble
+
+
+
+
+#include<iostream>
+#include<stdlib.h>
+#include<omp.h>
+using namespace std;
+void bubble(int *, int);
+void swap(int &, int &);
+void bubble(int *a, int n)
+{
+	for( int i = 0; i < n; i++ )
+	{
+		int first = i % 2;
+		#pragma omp parallel for shared(a,first)
+		for(int j = first; j < n-1; j += 2)
+		{
+			if(a[ j ] > a[ j+1 ] )
+			{
+			swap( a[ j ], a[ j+1 ] );
+			}
+		}
+	}
+}
+
+void swap(int &a, int &b)
+{
+	int test;
+	test=a;
+	a=b;
+	b=test;
+}
+
+int main()
+{
+	int *a,n;
+	cout<<"\n enter total no of elements=>";
+	cin>>n;
+	a=new int[n];
+	cout<<"\n enter elements=>";
+//Juned Hakim Shaikh (COBB007)
+	for(int i=0;i<n;i++)
+	{
+		cin>>a[i];
+	}
+	bubble(a,n);
+	cout<<"\n sorted array is=>";
+	for(int i=0;i<n;i++)
+	{
+		cout<<a[i]<<endl;
+	}
+	return 0;
+}
